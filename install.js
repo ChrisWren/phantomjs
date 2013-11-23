@@ -112,7 +112,7 @@ whichDeferred.promise
   .then(function () {
     var location = process.platform === 'win32' ?
         path.join(pkgPath, 'phantomjs.exe') :
-        path.join(pkgPath, 'bin' ,'phantomjs')
+        path.join(pkgPath, 'bin' ,'phantomjs-' + process.platform)
     var relativeLocation = path.relative(libPath, location)
     writeLocationFile(relativeLocation)
     console.log('Done. Phantomjs binary available at', location)
@@ -129,8 +129,10 @@ function writeLocationFile(location) {
   if (process.platform === 'win32') {
     location = location.replace(/\\/g, '\\\\')
   }
+  var locationObject = {};
+  locationObject[process.platform] = location;
   fs.writeFileSync(path.join(libPath, 'location.js'),
-      'module.exports.location = "' + location + '"')
+      'module.exports.location = ' + JSON.stringify(locationObject))
 }
 
 
@@ -149,7 +151,7 @@ function findSuitableTempDirectory(npmConf) {
   ]
 
   for (var i = 0; i < candidateTmpDirs.length; i++) {
-    var candidatePath = path.join(candidateTmpDirs[i], 'phantomjs')
+    var candidatePath = path.join(candidateTmpDirs[i], 'phantomjs-' + process.platform)
 
     try {
       mkdirp.sync(candidatePath, '0777')
@@ -272,14 +274,23 @@ function extractDownload(filePath) {
 
 
 function copyIntoPlace(extractedPath, targetPath) {
+
+  // Create directories if necessary before copying binary
+  if (!fs.existsSync(targetPath)) {
+    fs.mkdirSync(targetPath);
+    fs.mkdirSync(targetPath + path.sep + 'bin');
+  }
+
+  targetPath = targetPath + path.sep + 'bin' + path.sep + 'phantomjs-' + process.platform;
   rimraf(targetPath)
 
   var deferred = kew.defer()
   // Look for the extracted directory, so we can rename it.
   var files = fs.readdirSync(extractedPath)
   for (var i = 0; i < files.length; i++) {
-    var file = path.join(extractedPath, files[i])
-    if (fs.statSync(file).isDirectory() && file.indexOf(helper.version) != -1) {
+
+    var file = path.join(extractedPath, files[i]) + path.sep + 'bin' + path.sep + 'phantomjs'
+    if (file.indexOf(helper.version) != -1) {
       console.log('Copying extracted folder', file, '->', targetPath)
       ncp(file, targetPath, deferred.makeNodeResolver())
       break

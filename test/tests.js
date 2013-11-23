@@ -11,7 +11,7 @@ var phantomjs = require('../lib/phantomjs')
 
 exports.testDownload = function (test) {
   test.expect(1)
-  test.ok(fs.existsSync(phantomjs.path), 'Binary file should have been downloaded')
+  test.ok(fs.existsSync(phantomjs.path[process.platform]), 'Binary file should have been downloaded')
   test.done()
 }
 
@@ -35,7 +35,7 @@ exports.testPhantomExecutesTestScript = function (test) {
 exports.testBinFile = function (test) {
   test.expect(1)
 
-  var binPath = process.platform === 'win32' ? 
+  var binPath = process.platform === 'win32' ?
       path.join(__dirname, '..', 'lib', 'phantom', 'phantomjs.exe') :
       path.join(__dirname, '..', 'bin', 'phantomjs')
 
