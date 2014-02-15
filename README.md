@@ -1,5 +1,7 @@
-phantom
-=======
+# phantomjs-multi-binary
+
+This project differs from the [Obvious/phantomjs] repo in that it supports multiple OS binaries being available rather than a single binary dependending on where the initial installation occurred. This is helpful if you commit `node_modules` to your repo to prevent dependening on npm for deploys.
+
 
 An NPM wrapper for [PhantomJS](http://phantomjs.org/), headless webkit with JS API.
 
@@ -7,7 +9,7 @@ Building and Installing
 -----------------------
 
 ```shell
-npm install phantomjs
+npm install phantomjs-multibinary
 ```
 
 Or grab the source and
